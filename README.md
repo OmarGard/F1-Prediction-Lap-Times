@@ -62,7 +62,7 @@ pip install -r requirements.txt
 
 ---
 
-### 📘 License
+## 📘 License
 MIT License. This project is open for learning, research, and experimentation. Not affiliated with FIA, Formula 1, or any racing team.
 
 
