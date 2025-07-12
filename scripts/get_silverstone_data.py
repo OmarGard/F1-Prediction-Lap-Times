@@ -1,45 +1,33 @@
 import fastf1
-from fastf1 import plotting
 import pandas as pd
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CACHE_DIR = os.path.join(BASE_DIR, 'data')
-fastf1.Cache.enable_cache(CACHE_DIR) # Cache in /data
+fastf1.Cache.enable_cache('data') # Cache in /data
 
-def get_race_laps(year):
-    session = fastf1.get_session(year, 'British Grand Prix', 'R')
-    session.load()
-    
-    laps = session.laps
-    drivers = session.drivers
-    results = session.results
-    driver_data = []
+def get_race_laps(year: int, session_name: str = 'British Grand Prix') -> pd.DataFrame:
+    """
+    Obtiene los datos de vueltas de la carrera de Silverstone para un año dado.
+    Devuelve un DataFrame con las columnas: Driver, LapTime, Sector1Time, Sector2Time, Sector3Time.
 
-    for drv in drivers:
-        dr_laps = laps.pick_drivers(drv)
-        if dr_laps.empty:
-            continue
+    Args:
+        year (int): Año de la carrera.
+        session_name (str): Nombre de la sesión (por defecto 'British Grand Prix').
 
-        avg_pace = dr_laps['LapTime'].mean()
-        # Obtener la secuencia de compuestos usados por el piloto durante la carrera
-        compound_sequence = list(dr_laps['Compound'].dropna().unique())
+    Returns:
+        pd.DataFrame: DataFrame con los datos de vueltas limpios.
+    """
+    if not isinstance(year, int) or year < 1950:
+        raise ValueError("El año debe ser un entero válido (>=1950).")
+    try:
+        session = fastf1.get_session(year, session_name, 'R')
+        session.load()
+    except Exception as e:
+        raise RuntimeError(f"Error cargando la sesión: {e}")
 
-        result = {
-            'Race': f"{year} Silverstone",
-            'Driver': drv,
-            'Team': session.get_driver(drv)['TeamName'],
-            'Grid Pos': results.loc[results['DriverNumber'] == drv, 'GridPosition'].values[0],
-            'Avg Lap Time': avg_pace.total_seconds(),
-            'Tire Strategy': compound_sequence,
-            'Result Pos': dr_laps.iloc[-1]['Position']
-        }
+    laps = session.laps[["Driver", "LapTime", "Sector1Time", "Sector2Time", "Sector3Time"]].copy()
+    # Eliminar filas con valores nulos o tiempos no válidos
+    laps = laps.dropna(subset=["Driver", "LapTime", "Sector1Time", "Sector2Time", "Sector3Time"])
+    # Opcional: filtrar solo vueltas válidas (LapTime > 0)
+    laps = laps[laps["LapTime"].apply(lambda x: hasattr(x, "total_seconds") and x.total_seconds() > 0)]
 
-        driver_data.append(result)
-
-    return pd.DataFrame(driver_data)
-
-if __name__ == "__main__":
-    df = get_race_laps(2024)
-    df.to_csv(os.path.join(CACHE_DIR, 'silverstone_2024.csv'), index=False)
-    print(df.head())
+    return laps.reset_index(drop=True)
