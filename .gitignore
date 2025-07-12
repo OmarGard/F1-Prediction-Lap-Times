@@ -1,4 +1,6 @@
 .venv
 data/*
 !data/silverstone_2024.csv
+!data/silverstone_2025_clean_air_race_pace.csv
+!data/silverstone_2025_race_pace_summary.csv
 .DS_Store
