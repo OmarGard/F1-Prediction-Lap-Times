@@ -3,4 +3,5 @@ data/*
 !data/silverstone_2024.csv
 !data/silverstone_2025_clean_air_race_pace.csv
 !data/silverstone_2025_race_pace_summary.csv
+!data/2025_British Grand Prix_qualifying.csv
 .DS_Store
