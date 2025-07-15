@@ -4,4 +4,8 @@ data/*
 !data/silverstone_2025_clean_air_race_pace.csv
 !data/silverstone_2025_race_pace_summary.csv
 !data/2025_British Grand Prix_qualifying.csv
+!data/weather
+!data/standings
 .DS_Store
+.env
+scripts/__pycache__/
