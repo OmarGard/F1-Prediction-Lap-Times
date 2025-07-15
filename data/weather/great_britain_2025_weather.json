@@ -1,0 +1,33 @@
+{
+    "data": [
+        {
+            "clouds": 69,
+            "dew_point": 13.12,
+            "dt": 1751810400,
+            "feels_like": 19.63,
+            "humidity": 65,
+            "pressure": 1005,
+            "rain": {
+                "3h": 2.69
+            },
+            "sunrise": 1751773919,
+            "sunset": 1751833517,
+            "temp": 19.89,
+            "weather": [
+                {
+                    "description": "light rain",
+                    "icon": "10d",
+                    "id": 500,
+                    "main": "Rain"
+                }
+            ],
+            "wind_deg": 335,
+            "wind_gust": 7.07,
+            "wind_speed": 5.89
+        }
+    ],
+    "lat": 52.0711,
+    "lon": -1.0161,
+    "timezone": "Europe/London",
+    "timezone_offset": 3600
+}
