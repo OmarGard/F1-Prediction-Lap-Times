@@ -1,5 +1,5 @@
 import pandas as pd
-def getTeamPerformance(season, round, round_name):
+def get_team_performance(season, round, round_name):
     """
     Obtiene el rendimiento del equipo para una temporada y ronda específicas.
     
