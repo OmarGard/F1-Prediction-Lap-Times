@@ -76,7 +76,7 @@ def add_team_performance_score(df1, df2, key1, key2, threshold=80):
     return merged_df
 
 # Load 2024 session data and average sector times
-session_2024 = load_session_data(2025, 'British Grand Prix')
+session_2024 = load_session_data(2024, 'British Grand Prix')
 session_2024 = convert_times_to_seconds(session_2024)
 sector_times_2024 = average_sector_times_by_driver(session_2024)
 
