@@ -6,10 +6,10 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
-from get_silverstone_data import get_race_laps
+from session_data import get_race_laps, get_session_results
 from racepace import get_clean_air_race_pace
 from qualifying import get_qualifying_data
-from teamPerformance import get_team_performance
+from team_performance import get_team_performance
 from fuzzywuzzy import process
 
 # Load environment variables
@@ -104,7 +104,7 @@ merged = merged.merge(sector_times_2024[["Driver", "Sector1Time (s)", "Sector2Ti
 
 # Add temperature to the merged DataFrame
 merged["TrackTemperature"] = weather_temperature
-merged["RainProbability"] = 0.8
+merged["RainIntensity"] = weather_data.data[0].get("rain", {}).get("3h", 0)
 
 # Filter out drivers not present in the 2025 and 2024 session data
 valid_drivers = merged["Driver"].isin(session_2024["Driver"].unique())
@@ -112,15 +112,24 @@ merged = merged[valid_drivers]
 
 # define features (X) and target (y)
 X = merged[[
-    "QualifyingTime", "TrackTemperature", "TeamPerformanceScore", 
-    "CleanAirRacePace (s)", "Sector1Time (s)", "Sector2Time (s)", "Sector3Time (s)"
+    "QualifyingTime", "TrackTemperature", "TeamPerformanceScore", "RainIntensity",
+    "CleanAirRacePace (s)"
 ]]
-y = session_2024.groupby("Driver")["LapTime (s)"].mean().reindex(merged["Driver"])
+# y = session_2024.groupby("Driver")["LapTime (s)"].mean().reindex(merged["Driver"])
+y = get_session_results(2025, 'R', 'British Grand Prix')
+# Keep only the columns "Abbreviation, Position"
+y = y[["Abbreviation", "Position"]].rename(columns={"Abbreviation": "Driver"}) 
+
+# X dataframe has a defined order for the drivers, Y dataframe has a different order.
+# Sort y to match the drivers order in X
+y = y.set_index("Driver").reindex(merged["Driver"]).reset_index()
+
+# Assign y to column "Position" 
+y = y["Position"]
 
 # impute missing values for features
 imputer = SimpleImputer(strategy="median")
 X_imputed = imputer.fit_transform(X)
-
 
 # train-test split
 X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=37)
@@ -128,20 +137,20 @@ X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3,
 # train gradient boosting model
 model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=3, random_state=37)
 model.fit(X_train, y_train)
-merged["PredictedRaceTime (s)"] = model.predict(X_imputed)
+merged["PredictedRacePosition"] = model.predict(X_imputed)
 
 # sort the results to find the predicted winner
-final_results = merged.sort_values("PredictedRaceTime (s)")
+final_results = merged.sort_values("PredictedRacePosition")
 print("\n🏁 Predicted 2025 British Grand Prix Winner 🏁\n")
-print(final_results[["Driver", "PredictedRaceTime (s)"]])
+print(final_results[["Driver", "PredictedRacePosition"]])
 y_pred = model.predict(X_test)
-print(f"Model Error (MAE): {mean_absolute_error(y_test, y_pred):.2f} seconds")
+print(f"Model Error (MAE): {mean_absolute_error(y_test, y_pred):.2f} positions")
 
 # plot effect of clean air race pace
 plt.figure(figsize=(12, 8))
-plt.scatter(final_results["CleanAirRacePace (s)"], final_results["PredictedRaceTime (s)"])
+plt.scatter(final_results["CleanAirRacePace (s)"], final_results["PredictedRacePosition"])
 for i, driver in enumerate(final_results["Driver"]):
-    plt.annotate(driver, (final_results["CleanAirRacePace (s)"].iloc[i], final_results["PredictedRaceTime (s)"].iloc[i]),
+    plt.annotate(driver, (final_results["CleanAirRacePace (s)"].iloc[i], final_results["PredictedRacePosition"].iloc[i]),
                  xytext=(5, 5), textcoords='offset points')
 plt.xlabel("clean air race pace (s)")
 plt.ylabel("predicted race time (s)")
@@ -162,11 +171,12 @@ plt.show()
 
 
 # sort results and get top 3
-final_results = merged.sort_values("PredictedRaceTime (s)").reset_index(drop=True)
-podium = final_results.loc[:2, ["Driver", "PredictedRaceTime (s)"]]
+final_results = merged.sort_values("PredictedRacePosition").reset_index(drop=True)
+podium = final_results.loc[:2, ["Driver", "PredictedRacePosition"]]
 
 print("\n🏆 Predicted in the Top 3 🏆")
 print(f"🥇 P1: {podium.iloc[0]['Driver']}")
 print(f"🥈 P2: {podium.iloc[1]['Driver']}")
 print(f"🥉 P3: {podium.iloc[2]['Driver']}")
+
 

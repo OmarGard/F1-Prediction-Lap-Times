@@ -31,3 +31,15 @@ def get_race_laps(year: int, session_name: str = 'British Grand Prix') -> pd.Dat
     laps = laps[laps["LapTime"].apply(lambda x: hasattr(x, "total_seconds") and x.total_seconds() > 0)]
 
     return laps.reset_index(drop=True)
+
+def get_session_results(year: int, identifier: str, session_name: str = 'British Grand Prix') -> pd.DataFrame:
+    if not isinstance(year, int) or year < 1950:
+        raise ValueError("El año debe ser un entero válido (>=1950).")
+    try:
+        session = fastf1.get_session(year, session_name, identifier)
+        session.load()
+    except Exception as e:
+        raise RuntimeError(f"Error cargando la sesión: {e}")
+    
+    return session.results
+
