@@ -1,23 +1,24 @@
 import pandas as pd
+
 def get_team_performance(season, round, round_name):
     """
-    Obtiene el rendimiento del equipo para una temporada y ronda específicas.
+    Get team performance for a specific season and round.
     
     Args:
-        season (int): El año de la temporada.
-        round (str): La ronda del Gran Premio.
+        season (int): The year of the season.
+        round (str): The Grand Prix round.
         
     Returns:
-        pd.DataFrame: Un DataFrame con el rendimiento del equipo.
+        pd.DataFrame: A DataFrame with team performance data.
     """
     try:
         file_path = f'data/standings/constructor_standings_{season}_Round_{round}_{round_name}.csv'
         team_performance = pd.read_csv(file_path)
         if team_performance.empty:
-            raise ValueError("Los datos del rendimiento del equipo están vacíos.")
+            raise ValueError("Team performance data is empty.")
         return team_performance
     except FileNotFoundError:
-        raise FileNotFoundError(f"No se encontró el archivo de rendimiento del equipo: {file_path}")
+        raise FileNotFoundError(f"Team performance file not found: {file_path}")
     except Exception as e:
-        raise Exception(f"Error al cargar los datos del rendimiento del equipo: {e}")
+        raise Exception(f"Error loading team performance data: {e}")
     
