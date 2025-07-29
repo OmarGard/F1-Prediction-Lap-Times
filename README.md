@@ -1,43 +1,49 @@
 # 🏁 F1 Top-3 Predictor AI (2025 Silverstone GP)
 
-This is a personal AI project to **predict the top 3 finishers of a Formula 1 Grand Prix**, with a focus on the **2025 Silverstone GP**. The model leverages real-world F1 data sources, race dynamics, car and driver performance trends, and machine learning techniques to forecast podium outcomes.
+This is a personal AI project to **predict the top 3 finishers of a Formula 1 Grand Prix**, focused on the **2025 Silverstone GP**. The model uses real F1 data, race dynamics, driver and team performance trends, and machine learning techniques to forecast the podium.
 
 ---
 
 ## 🔍 Objective
 
-Build a machine learning model (using neural networks and tabular ML) to predict the top 3 finishers of an F1 race, based on the **most recent performance trends** leading into the event.
+Build a machine learning model to predict the top 3 finishers of the 2025 Silverstone GP, using **recent performance trends** prior to the event.
 
 ---
 
-## 🚦 Approach
+## 🚦 Pipeline and Approach
 
 1. **Data Collection**:
-   - Gather real telemetry, timing, and weather data from recent races using `FastF1` and/or `OpenF1 API`.
-   - Extract features like average race pace, qualifying performance, tire strategy, degradation, etc.
+   - Real telemetry, timing, and weather data from recent races is obtained using `FastF1` and `Open Weather API` 
+   - Features such as clean air race pace, qualifying times, team score, and track conditions are extracted.
 
-2. **Feature Engineering**:
-   - Construct **driver performance snapshots** using data from the 3–5 races preceding Silverstone 2025.
-   - Include car/team trends, compound behavior, weather, and more.
+2. **Processing and Feature Engineering**:
+   - Driver performance snapshots are generated using qualifying and race data from Silverstone 2024 and 2025.
+   - Sector averages, clean air race pace, and weather factors are calculated and integrated.
+   - A wet performance factor is added if the forecast requires it.
 
 3. **Modeling**:
-   - Train a neural network or hybrid model to predict **finish probabilities** for each driver.
-   - Use ranking loss functions (e.g., RankNet, NDCG@3) or multi-label classification.
+   - A machine learning model (e.g., GradientBoostingRegressor) is trained to predict each driver's total race time.
+   - Missing values are imputed and weather, team, qualifying, and race pace features are combined.
 
-4. **Prediction & Evaluation**:
-   - Evaluate the model by comparing predictions with actual race results.
-   - Validate using backtests and compare with betting odds or expert predictions.
+4. **Prediction and Evaluation**:
+   - Race times are predicted and sorted to obtain the podium.
+   - The model is evaluated with MAE and feature importance is visualized.
 
 ---
 
 ## 📦 Project Structure
 ```
 f1-predictor/
-├── data/ # Raw and processed race data
+├── data/ # Raw and processed race and weather data
 ├── notebooks/ # Exploratory analysis and modeling notebooks
-├── scripts/ # Python scripts for data collection and processing
-├── models/ # Saved model weights and training checkpoints
-├── main.py # Project entry point (coming soon)
+├── scripts/ # Python scripts for data processing and extraction
+│   ├── session_data.py # Session data loading and cleaning
+│   ├── racepace.py # Clean air race pace extraction
+│   ├── qualifying.py # Qualifying data extraction
+│   ├── team_performance.py # Team performance scoring
+│   └── utils.py # Feature and matching utilities
+├── models/ # Trained model weights and checkpoints
+├── main.py # Main prediction and visualization pipeline
 └── README.md # Project documentation
 ```
 
@@ -52,6 +58,7 @@ f1-predictor/
 - Scikit-learn
 - XGBoost or LightGBM (optional)
 - PyTorch or TensorFlow (for deep models)
+- fuzzywuzzy (for fuzzy name matching)
 
 ---
 
@@ -62,7 +69,19 @@ pip install -r requirements.txt
 
 ---
 
+## 🚀 Pipeline Execution
+
+The main pipeline is in `main.py` and includes:
+
+- Loading and processing session and weather data.
+- Extraction of qualifying, race pace, and team features.
+- Integration of weather conditions.
+- Model training and evaluation.
+- Visualization of results and feature importance analysis.
+
+---
+
 ## 📘 License
-MIT License. This project is open for learning, research, and experimentation. Not affiliated with FIA, Formula 1, or any racing team.
+MIT License. Open project for learning, research, and experimentation. Not affiliated with FIA, Formula 1, or any team.
 
 
