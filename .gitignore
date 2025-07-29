@@ -6,6 +6,7 @@ data/*
 !data/2025_British Grand Prix_qualifying.csv
 !data/weather
 !data/standings
+!data/performance
 !data/figures
 .DS_Store
 .env

@@ -1,3 +1,9 @@
+from scripts.utils import fill_missing_total_times
+import fastf1
+import pandas as pd
+
+fastf1.Cache.enable_cache('data') # Cache in /data
+
 def load_session_data(year=2025, session_name='British Grand Prix'):
     """
     Loads race lap data for a given year and session name. Raises ValueError if no data is found.
@@ -6,11 +12,6 @@ def load_session_data(year=2025, session_name='British Grand Prix'):
     if session_data.empty:
         raise ValueError(f"No race data found for {year} {session_name}.")
     return session_data
-import fastf1
-import pandas as pd
-import os
-
-fastf1.Cache.enable_cache('data') # Cache in /data
 
 
 def get_race_laps(year: int, session_name: str = 'British Grand Prix') -> pd.DataFrame:
@@ -51,4 +52,14 @@ def get_session_results(year: int, identifier: str, session_name: str = 'British
         raise RuntimeError(f"Error loading session: {e}")
     
     return session.results
+
+def get_target_total_time(year, session_type, grand_prix):
+    """
+    Gets the target column 'TotalTime (s)' for prediction.
+    """
+    y = get_session_results(year, session_type, grand_prix)
+    y = y[["Abbreviation", "Time"]].rename(columns={"Abbreviation": "Driver", "Time": "DeltaTotalTime"})
+    y["TotalTime (s)"] = y["DeltaTotalTime"].dt.total_seconds().cumsum()
+    y = fill_missing_total_times(y)
+    return y[["TotalTime (s)"]]
 

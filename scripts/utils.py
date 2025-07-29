@@ -38,9 +38,12 @@ def average_sector_times_by_driver(df):
         new_df["Sector1Time (s)"] + new_df["Sector2Time (s)"] + new_df["Sector3Time (s)"])
     return new_df
 
-def add_wet_performance_factor(qualifying_data):
-    qualifying_data["WetPerformanceFactor"] = 1.3  # Example factor, adjust as needed
-    qualifying_data["QualifyingTime"] = qualifying_data["Best_Time_Seconds"] * qualifying_data["WetPerformanceFactor"]
+def add_wet_and_dry_performance_factor(qualifying_data, wet_and_dry_performance_factors):
+    qualifying_data = qualifying_data.merge(
+        wet_and_dry_performance_factors[["Driver", "wet_performance_factor", "dry_performance_factor"]],
+        on="Driver",
+        how="left"
+    )
     return qualifying_data
 
 def get_fuzzy_matches(df1, df2, key1, key2, threshold=80):
