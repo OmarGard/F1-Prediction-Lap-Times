@@ -8,6 +8,7 @@ data/*
 !data/standings
 !data/performance
 !data/figures
+!data/tracks
 .DS_Store
 .env
 scripts/__pycache__/

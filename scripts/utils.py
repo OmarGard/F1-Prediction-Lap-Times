@@ -62,3 +62,21 @@ def add_team_performance_score(df1, df2, key1, key2, threshold=80):
     merged_df = merged_df.drop(columns=[key2])
     merged_df = merged_df.rename(columns={'points': 'TeamPerformanceScore'})
     return merged_df
+
+def read_track_data(file_path='data/tracks/tracks_length.csv'):
+    """
+    Reads the track data file and returns a DataFrame.
+    Args:
+        file_path (str): Path to the track data CSV file.
+    Returns:
+        pd.DataFrame: DataFrame with track information and their data.
+    """
+    try:
+        df = pd.read_csv(file_path)
+        if df.empty:
+            raise ValueError("The track data file is empty.")
+        return df
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Track data file not found: {file_path}")
+    except Exception as e:
+        raise Exception(f"Error reading track data file: {e}")
